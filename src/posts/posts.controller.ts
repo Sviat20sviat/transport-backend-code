@@ -8,6 +8,7 @@ import { Roles } from 'src/auth/roles-auth.decorator';
 import { deletePostDto } from './dto/delete-post.dto';
 import { setPostStatusDto } from './dto/set-post-status.dto';
 import { UpdatePostDto } from './dto/update-post-dto';
+import { FilterPostDto } from './dto/filter.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -75,5 +76,14 @@ export class PostsController {
     @Post('/getOne')
     getOne(@Body() dto: {id}) {
         return this.postsService.getOne(dto.id);
+    }
+
+    @ApiOperation({summary: "Get Post by Filter"})
+    @ApiResponse({status: 200, type: Object})
+    // @ApiBody({type: string})
+    // @Roles('Admin', 'Driver')
+    @Post('/getFilteredPosts')
+    getFiltered(@Body() dto: FilterPostDto) {
+        return this.postsService.getFilteredPosts(dto);
     }
 }

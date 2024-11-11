@@ -44,11 +44,14 @@ export class PostsService {
     async getFilteredPosts(filtedDto: FilterPostDto) {
         const where: any = {};
 
-        if(filtedDto?.status) {
+        if(filtedDto?.status || filtedDto?.status == 0) {
             where.status = filtedDto.status;
         };
         if(filtedDto?.userId) {
             where.userId = filtedDto.userId;
+        };
+        if(filtedDto?.driverId) {
+            where.driverId = filtedDto.driverId;
         };
         const posts = await this.postRepository.findAll({where,include: {all: true}});
         return posts;

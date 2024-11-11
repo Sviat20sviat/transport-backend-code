@@ -66,13 +66,12 @@ export class Post extends Model<Post, PostCreationAttrs> {
     @Column({type: DataType.TEXT, allowNull: true})
     warehouse: string;
 
-    @ApiProperty({example: 123, description: "DriverId"})
+    @ForeignKey(() => User)
     @Column({type: DataType.INTEGER})
     driverId: number;
 
-
-    // @Column({type: DataType.INTEGER})
-    // customerId: number;
+    @BelongsTo(() => User, 'driverId')
+    driver: User;
 
     @ApiProperty({example: 1, description: "cargoStatus"})
     @Column({type: DataType.INTEGER})

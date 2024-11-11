@@ -18,6 +18,10 @@ export class createUserDto {
     @IsString({message: "Must be a string"})
     readonly phoneNumber: string;
 
+    @ApiProperty({example: '+7123123123', description: "phoneNumber"})
+    @IsString({message: "Must be a string"})
+    readonly phoneNumberSecond: string;
+
     @ApiProperty({example: true, description: "isDriver"})
     readonly isDriver: boolean;
 }

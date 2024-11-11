@@ -43,6 +43,10 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.STRING, allowNull: true})
     phoneNumber: string;
 
+    @ApiProperty({example: '+743534543', description: "Phone number 2"})
+    @Column({type: DataType.STRING, allowNull: true})
+    phoneNumberSecond: string;
+
     @ApiProperty({example: '123123', description: "Pass"})
     @Column({type: DataType.STRING, allowNull: false})
     password: string;
@@ -64,4 +68,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
     @HasMany(() => Post, 'customerId')
     selectedPosts: Post[]
+
+    @HasMany(() => Post, 'driverId')
+    selectedByDriverPosts: Post[]
 }

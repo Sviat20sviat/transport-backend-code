@@ -25,6 +25,7 @@ export class UsersService {
             password: dto.password,
             nickname: dto.nickname,
             phoneNumber: dto.phoneNumber,
+            phoneNumberSecond: dto.phoneNumberSecond,
         }
 
         const user = await this.userRepository.create(userValues);
