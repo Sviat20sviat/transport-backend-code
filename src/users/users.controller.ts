@@ -12,6 +12,8 @@ import { BanUserDto } from './dto/ban-user.dto';
 import { deleteUserDto } from './dto/delete-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { setUserChatIdDto } from './dto/setUserChatId.dto';
+import { GetFilteredUsersDto } from './dto/GetFilteredUsers.dto';
+import { SetUserBalanceDto } from './dto/setUserBalance.dto';
 // import { ValidationPipe } from 'src/pipes/validation.pipe';
 
 @ApiTags('User')
@@ -88,5 +90,21 @@ export class UsersController {
     @Post('/setChatId')
     setTelegramChatIdToUser(@Body() dto: setUserChatIdDto) {
         return this.usersService.setTelegramChatIdToUser(dto);
+    }
+
+    @ApiOperation({summary: "Filter Users"})
+    @ApiResponse({status: 200})
+    @Post('/getFiltered')
+    getFilteredUsers(@Body() dto: GetFilteredUsersDto) {
+        return this.usersService.getFiltederUsers(dto);
+    }
+
+    @ApiOperation({summary: "Set Balance Users"})
+    @ApiResponse({status: 200})
+    @Roles('Admin')
+    @UseGuards(RolesGuard)
+    @Post('/setBalance')
+    setUserBalance(@Body() dto: SetUserBalanceDto) {
+        return this.usersService.setUserBalance(dto);
     }
 }

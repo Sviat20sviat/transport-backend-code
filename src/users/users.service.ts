@@ -8,6 +8,8 @@ import { BanUserDto } from './dto/ban-user.dto';
 import { deleteUserDto } from './dto/delete-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { setUserChatIdDto } from './dto/setUserChatId.dto';
+import { GetFilteredUsersDto } from './dto/GetFilteredUsers.dto';
+import { SetUserBalanceDto } from './dto/setUserBalance.dto';
 
 @Injectable()
 export class UsersService {
@@ -96,16 +98,16 @@ export class UsersService {
         const user = await this.userRepository.findOne({where: {id: dto.id}, include: {all: true}});
         if(user) {
             console.log('user!',user);
-            if(dto.firstName){
+            if(dto?.firstName){
                 await user.set('firstName', dto.firstName);
             };
-            if(dto.lastName){
+            if(dto?.lastName){
                 await user.set('lastName', dto.lastName);
             };
-            if(dto.phoneNumber){
+            if(dto?.phoneNumber){
                 await user.set('phoneNumber', dto.phoneNumber);
             };
-            if(dto.email){
+            if(dto?.email){
                 await user.set('email', dto.email);
             };
             await user.save();
@@ -126,6 +128,35 @@ export class UsersService {
             return user;
         };
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    async getFiltederUsers(dto: GetFilteredUsersDto) {
+        const where: any = {};
+        if(dto?.status) {
+            where.status = dto.status
+        };
+
+        const users = await this.userRepository.findAll({where, include: {all: true}});
+        let filteredUsers;
+        if(dto?.roleId && users?.length) {
+            filteredUsers = users.filter(user => user.roles.some(role => role.id == dto.roleId));
+            return filteredUsers
+        }
+        
+        return users;
+    }
+
+    async setUserBalance (dto: SetUserBalanceDto): Promise<User> {
+        const user = await this.getUserById(dto.userId);
+
+        if(!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        }
+        if(dto.balance || dto.balance == 0) {
+            await user.set('balance', dto.balance);
+        };
+        await user.save();
+        return user;
     }
 }
 

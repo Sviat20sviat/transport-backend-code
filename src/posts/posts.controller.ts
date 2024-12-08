@@ -9,6 +9,7 @@ import { deletePostDto } from './dto/delete-post.dto';
 import { setPostStatusDto } from './dto/set-post-status.dto';
 import { UpdatePostDto } from './dto/update-post-dto';
 import { FilterPostDto } from './dto/filter.dto';
+import { GetPostDto } from './dto/get-post.dto';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -71,7 +72,7 @@ export class PostsController {
 
     @ApiOperation({summary: "Get Post"})
     @ApiResponse({status: 200, type: Object})
-    // @ApiBody({type: string})
+    @ApiBody({type: GetPostDto})
     // @Roles('Admin', 'Driver')
     @Post('/getOne')
     getOne(@Body() dto: {id}) {

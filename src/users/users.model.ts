@@ -59,6 +59,14 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.STRING, allowNull: true})
     banReason: string;
 
+    @ApiProperty({example: "Постоянный", description: "status"})
+    @Column({type: DataType.STRING, allowNull: true})
+    status: string;
+
+    @ApiProperty({example: 1200, description: "Баланс пользователя"})
+    @Column({type: DataType.BIGINT, allowNull: false, defaultValue: 0,})
+    balance: number;
+
 
     @BelongsToMany(() => Role, () => UserRoles)
     roles: Role[];

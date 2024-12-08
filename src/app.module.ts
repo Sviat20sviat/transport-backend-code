@@ -13,6 +13,9 @@ import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from "@nestjs/serve-static";
 import * as path from "path";
 import { GatewayModule } from "./gateway/gateway.module";
+import { PostProductsModule } from './post-products/post-products.module';
+import { AddressesModule } from './addresses/addresses.module';
+import { DocumentsModule } from './documents/documents.module';
 
 
 @Module({
@@ -41,6 +44,9 @@ import { GatewayModule } from "./gateway/gateway.module";
         rootPath: path.resolve(__dirname,'static'),
       }),
       GatewayModule,
+      PostProductsModule,
+      AddressesModule,
+      DocumentsModule,
     ],
 })
 export class AppModule {

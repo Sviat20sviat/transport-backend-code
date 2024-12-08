@@ -8,6 +8,8 @@ import { setPostStatusDto } from './dto/set-post-status.dto';
 import { EventNameEnum, TransportGateway } from 'src/gateway/gateway';
 import { UpdatePostDto } from './dto/update-post-dto';
 import { FilterPostDto } from './dto/filter.dto';
+import { DocumentService } from 'src/documents/documents.service';
+import { CreateDocumentDto } from 'src/documents/dto/CreateDocument.dto';
 
 @Injectable()
 export class PostsService {
@@ -15,7 +17,8 @@ export class PostsService {
     constructor(
         @InjectModel(Post) private postRepository: typeof Post,
         private fileService: FilesService,
-        private gateway: TransportGateway
+        private gateway: TransportGateway,
+        private documentService: DocumentService
     ) {
 
     }
@@ -26,7 +29,12 @@ export class PostsService {
         const post = await this.postRepository.create({...dto, image: fileName || "", status: 0});
         if(post) {
             this.gateway.emit(EventNameEnum.OnPostCreate, post);
-            return post;
+            await this.createDocumentOnPostCreating(post);
+            const postUpdated = await this.getOne(post.id.toString())
+            if(!postUpdated) {
+                throw new HttpException('Error When Post Creating', HttpStatus.NOT_FOUND);
+            }
+            return postUpdated;
         }
         throw new HttpException('Error When Post Creating', HttpStatus.NOT_FOUND);
     }
@@ -137,5 +145,26 @@ export class PostsService {
         await post.save();
         this.gateway.emit(EventNameEnum.OnPostUpdate, post);
         return post;
+    }
+
+    async createDocumentOnPostCreating (post: Post) {
+        if(!post) {
+            throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+        };
+
+        const createData: CreateDocumentDto = {
+            addressFrom: '-',
+            addressTo: '-',
+            comment: "default comment",
+            docType: 1,
+            sum: post.summ,
+            isSystem: true,
+            clientId: post.customerId,
+            recipientId: post.userId,
+            postBasisId: post.id
+        }
+
+        const document = await this.documentService.create(createData);
+        return document;
     }
 }
