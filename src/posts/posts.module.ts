@@ -8,6 +8,7 @@ import { FilesModule } from 'src/files/files.module';
 import { GatewayModule } from 'src/gateway/gateway.module';
 import { DocumentsModule } from 'src/documents/documents.module';
 import { Document } from 'src/documents/documents.model';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   providers: [PostsService],
@@ -16,7 +17,8 @@ import { Document } from 'src/documents/documents.model';
     SequelizeModule.forFeature([User, Document, Post ]),
     FilesModule,
     GatewayModule,
-    DocumentsModule
+    DocumentsModule,
+    UsersModule
   ]
 })
 export class PostsModule {}

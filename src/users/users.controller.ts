@@ -14,6 +14,7 @@ import { updateUserDto } from './dto/update-user.dto';
 import { setUserChatIdDto } from './dto/setUserChatId.dto';
 import { GetFilteredUsersDto } from './dto/GetFilteredUsers.dto';
 import { SetUserBalanceDto } from './dto/setUserBalance.dto';
+import { SetUserFavoriteAddressDto } from './dto/set-user-favorite-address.dto';
 // import { ValidationPipe } from 'src/pipes/validation.pipe';
 
 @ApiTags('User')
@@ -106,5 +107,26 @@ export class UsersController {
     @Post('/setBalance')
     setUserBalance(@Body() dto: SetUserBalanceDto) {
         return this.usersService.setUserBalance(dto);
+    }
+
+    @ApiOperation({summary: "Set  Users Favorite Addresses"})
+    @ApiResponse({status: 200})
+    @Post('/setAddresses')
+    setUserFavoriteAddress(@Body() dto: SetUserFavoriteAddressDto) {
+        return this.usersService.setUserFavoriteAddress(dto);
+    }
+
+    @ApiOperation({summary: "search ONE user by values"})
+    @ApiResponse({status: 200})
+    @Post('/searchOne')
+    searchUser(@Body() dto: string) {
+        return this.usersService.searchUser(dto);
+    }
+
+    @ApiOperation({summary: "search ALL user by values"})
+    @ApiResponse({status: 200})
+    @Post('/searchAll') 
+    searchUsers(@Body() dto: {value: string}) {
+        return this.usersService.searchUsers(dto?.value);
     }
 }

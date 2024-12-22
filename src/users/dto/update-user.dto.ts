@@ -10,11 +10,6 @@ export class updateUserDto {
     @IsEmail({}, {message: "Must be an email"})
     readonly email: string;
 
-    @ApiProperty({example: '234234', description: "Password"})
-    @IsString({message: "Must be a string"})
-    @Length( 6, 16, {message: "Password must have 6-16 symbols length"})
-    readonly password: string;
-
     @ApiProperty({example: 'Alex', description: "firstName"})
     @IsString({message: "Must be a string"})
     readonly firstName: string;
@@ -28,6 +23,9 @@ export class updateUserDto {
     readonly nickname: string;
 
     @ApiProperty({example: '+123423423', description: "Phone"})
-    @IsNumber({},{message: "must be a number"})
     readonly phoneNumber: string;
+
+    @ApiProperty({example: '+123423423', description: "Phone Second"})
+    readonly phoneNumberSecond?: string;
+
 }

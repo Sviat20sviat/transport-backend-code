@@ -63,6 +63,10 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.STRING, allowNull: true})
     status: string;
 
+    @ApiProperty({example: "Пушкинская, 10", description: "Избранные адреса"})
+    @Column({type: DataType.ARRAY(DataType.TEXT), allowNull: false, defaultValue: []})
+    favoriteAddresses: string[];
+
     @ApiProperty({example: 1200, description: "Баланс пользователя"})
     @Column({type: DataType.BIGINT, allowNull: false, defaultValue: 0,})
     balance: number;

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { createPostDto } from './dto/create-post.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Post } from './posts.model';
@@ -10,6 +10,8 @@ import { UpdatePostDto } from './dto/update-post-dto';
 import { FilterPostDto } from './dto/filter.dto';
 import { DocumentService } from 'src/documents/documents.service';
 import { CreateDocumentDto } from 'src/documents/dto/CreateDocument.dto';
+import { UsersService } from 'src/users/users.service';
+import { User } from 'src/users/users.model';
 
 @Injectable()
 export class PostsService {
@@ -18,19 +20,31 @@ export class PostsService {
         @InjectModel(Post) private postRepository: typeof Post,
         private fileService: FilesService,
         private gateway: TransportGateway,
-        private documentService: DocumentService
+        private documentService: DocumentService,
+        @Inject(forwardRef(() => UsersService))
+        private userService: UsersService,
     ) {
 
     }
 
-    async createPost(dto: createPostDto, image) {
+    async createPost(dto: createPostDto, image): Promise<Post> {
         console.log('createPost!',dto);
+        let postStatus: number = 0;
         const fileName = await this.fileService.createFile(image);
-        const post = await this.postRepository.create({...dto, image: fileName || "", status: 0});
+        const postUser: User = await this.userService.getUserById(JSON.stringify(dto.userId));
+        if((postUser?.roles.some(role => role.value == 'Admin') || postUser?.roles.some(role => role.value == 'Operator') && dto?.summ)) {
+            postStatus = 1;
+        };
+        const post = await this.postRepository.create({...dto, image: fileName || "", status: postStatus});
         if(post) {
-            this.gateway.emit(EventNameEnum.OnPostCreate, post);
-            await this.createDocumentOnPostCreating(post);
-            const postUpdated = await this.getOne(post.id.toString())
+            
+
+            if(post?.status > 0) {
+                await this.createDocumentOnPostCreating(post);
+            };
+    
+            const postUpdated = await this.getOne(post.id.toString());
+            this.gateway.emit(EventNameEnum.OnPostCreate, postUpdated);
             if(!postUpdated) {
                 throw new HttpException('Error When Post Creating', HttpStatus.NOT_FOUND);
             }
@@ -100,6 +114,8 @@ export class PostsService {
 
     async updatePost(dto: UpdatePostDto) {
         const post = await this.postRepository.findOne({where: {id: dto.id}, include: {all: true}});
+
+        let isCreateDocumentAfterUpdating = false;
         if(!post) {
             throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
         };
@@ -130,6 +146,9 @@ export class PostsService {
             post.set('price', dto.price);
         };
         if(dto.status) {
+            if(post?.status == 0 && dto?.status !== 0 && dto?.summ >= 0) {
+                isCreateDocumentAfterUpdating = true;
+            };
             post.set('status', dto.status);
         };
 
@@ -143,8 +162,12 @@ export class PostsService {
             post.set('warehouse', dto.warehouse);
         };
         await post.save();
-        this.gateway.emit(EventNameEnum.OnPostUpdate, post);
-        return post;
+        const updatedPost = await this.createDocumentOnPostCreating(post);
+        if(!updatedPost) {
+            throw new HttpException('Error When Post Updating', HttpStatus.NOT_FOUND);
+        }
+        this.gateway.emit(EventNameEnum.OnPostUpdate, updatedPost);
+        return updatedPost;
     }
 
     async createDocumentOnPostCreating (post: Post) {

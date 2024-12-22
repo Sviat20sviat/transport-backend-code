@@ -10,6 +10,8 @@ import { updateUserDto } from './dto/update-user.dto';
 import { setUserChatIdDto } from './dto/setUserChatId.dto';
 import { GetFilteredUsersDto } from './dto/GetFilteredUsers.dto';
 import { SetUserBalanceDto } from './dto/setUserBalance.dto';
+import { SetUserFavoriteAddressDto } from './dto/set-user-favorite-address.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UsersService {
@@ -28,6 +30,8 @@ export class UsersService {
             nickname: dto.nickname,
             phoneNumber: dto.phoneNumber,
             phoneNumberSecond: dto.phoneNumberSecond,
+            firstName: dto.firstName,
+            lastName: dto.lastName
         }
 
         const user = await this.userRepository.create(userValues);
@@ -107,6 +111,9 @@ export class UsersService {
             if(dto?.phoneNumber){
                 await user.set('phoneNumber', dto.phoneNumber);
             };
+            if(dto?.phoneNumberSecond){
+                await user.set('phoneNumberSecond', dto.phoneNumber);
+            };
             if(dto?.email){
                 await user.set('email', dto.email);
             };
@@ -157,6 +164,71 @@ export class UsersService {
         };
         await user.save();
         return user;
+    }
+
+    
+    async setUserFavoriteAddress (dto: SetUserFavoriteAddressDto): Promise<User> {
+        const user = await this.getUserById(dto.userId);
+
+        if(!user) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        };
+        if((dto as any).addresses?.length) {
+            let addresses = [];
+            // if(user?.favoriteAddresses?.length) {
+            //     addresses = [...user?.favoriteAddresses, ...(dto as any).addresses]
+            // } else {
+                addresses = dto.addresses;
+            // };
+
+            await user.set('favoriteAddresses', addresses);
+        };
+        await user.save();
+        return user;
+    }
+
+    async searchUser (value: string): Promise<User | null> {
+        const userByEmail = await this.userRepository.findOne({where: {email: value}, include: {all: true}}); 
+        const userByNick = await this.userRepository.findOne({where: {nickname: value}, include: {all: true}});
+        const userByFirstName = await this.userRepository.findOne({where: {firstName: value}, include: {all: true}}); 
+        const userByLastName = await this.userRepository.findOne({where: {lastName: value}, include: {all: true}});
+        const userByPhone = await this.userRepository.findOne({where: {phoneNumber: value}, include: {all: true}});
+        const userByPhoneSecond = await this.userRepository.findOne({where: {phoneNumberSecond: value}, include: {all: true}});
+
+        const users = [userByEmail, userByNick, userByFirstName, userByLastName, userByPhone, userByPhoneSecond];
+        let findedUser;
+        users?.forEach((user) => {
+            if(user?.id) {
+                findedUser = user;
+                return user;
+            }
+        });
+        if(findedUser?.id) {
+            return findedUser;
+        };
+        return null;
+    }
+
+    async searchUsers(value: string): Promise<User[]> {
+        console.log('searchUsers',value);
+        if(!value) {
+            return [];
+        };
+        const users = await this.userRepository.findAll({
+            where: {
+                [Op.or]: [
+                    { email: { [Op.iLike]: `%${value}%` } },
+                    { nickname: { [Op.iLike]: `%${value}%` } },
+                    { firstName: { [Op.iLike]: `%${value}%` } },
+                    { lastName: { [Op.iLike]: `%${value}%` } },
+                    { phoneNumber: { [Op.iLike]: `%${value}%` } },
+                    { phoneNumberSecond: { [Op.iLike]: `%${value}%` } },
+                ],
+            },
+            include: { all: true },
+        });
+    
+        return users;
     }
 }
 

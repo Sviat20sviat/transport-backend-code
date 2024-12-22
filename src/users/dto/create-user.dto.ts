@@ -20,8 +20,16 @@ export class createUserDto {
 
     @ApiProperty({example: '+7123123123', description: "phoneNumber"})
     @IsString({message: "Must be a string"})
-    readonly phoneNumberSecond: string;
+    readonly phoneNumberSecond?: string;
 
     @ApiProperty({example: true, description: "isDriver"})
     readonly isDriver: boolean;
+
+    @ApiProperty({example: 'Илья', description: "firstName"})
+    @IsString({message: "Must be a string"})
+    readonly firstName?: string;
+
+    @ApiProperty({example: 'Илья', description: "firstName"})
+    @IsString({message: "Must be a string"})
+    readonly lastName?: string;
 }

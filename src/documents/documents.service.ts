@@ -12,7 +12,7 @@ export class DocumentService {
     constructor(
         @InjectModel(Document) private readonly documentModel: typeof Document,
         @Inject(forwardRef(() => UsersService))
-        private userService: UsersService
+        private userService: UsersService,
     ) { }
 
     // Создание документа
@@ -65,12 +65,12 @@ export class DocumentService {
         if (filterDto.docType) where.docType = filterDto.docType;
         if (filterDto.isSystem !== undefined) where.isSystem = filterDto.isSystem;
 
-        return await this.documentModel.findAll({ where });
+        return await this.documentModel.findAll({ where, include: {all: true}});
     }
 
     // Получение одного документа по ID
     async findOne(id: number): Promise<Document> {
-        return await this.documentModel.findByPk(id);
+        return await this.documentModel.findOne({ where: {id}, include: {all: true}});
     }
 
     // Обновление документа

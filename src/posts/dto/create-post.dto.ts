@@ -117,4 +117,14 @@ export class createPostDto {
 
     @ApiProperty({example: '234234', description: "customerId"})
     readonly customerId: number;
+
+    @ApiProperty({example: 123, description: "Summ"})
+    readonly summ?: number;
+
+    @ApiProperty({example: 123, description: "Price"})
+    readonly price?: number;
+    @ApiProperty({example: 123, description: "Commission"})
+    readonly commission?: number;
+    @ApiProperty({example: 123, description: "Paid"})
+    readonly paid?: number;
 }
