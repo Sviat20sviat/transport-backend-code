@@ -40,8 +40,9 @@ import { DocumentsModule } from './documents/documents.module';
       AuthModule,
       PostsModule,
       FilesModule,
-      ServeStaticModule.forRoot({
-        rootPath: path.resolve(__dirname,'static'),
+      ServeStaticModule.forRoot({ 
+        rootPath: path.join(__dirname, '..', 'uploads'),
+        serveRoot: '/uploads'
       }),
       GatewayModule,
       PostProductsModule,

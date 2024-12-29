@@ -71,6 +71,46 @@ export class User extends Model<User, UserCreationAttrs> {
     @Column({type: DataType.BIGINT, allowNull: false, defaultValue: 0,})
     balance: number;
 
+    ///////
+
+    @ApiProperty({example: "Постоянный", description: "inn"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    inn: string;
+
+    @ApiProperty({example: "Постоянный", description: "kpp"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    kpp: string;
+
+    @ApiProperty({example: "Постоянный", description: "ogrn"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    ogrn: string;
+
+    @ApiProperty({example: "Постоянный", description: "ocpo"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    ocpo: string;
+
+    @ApiProperty({example: "Постоянный", description: "ocpo"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    bic: string;
+
+    @ApiProperty({example: "Постоянный", description: "bankAccount"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    bankAccount: string;
+
+    @ApiProperty({example: "Постоянный", description: "userBankAccount"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    userBankAccount: string;
+
+    @ApiProperty({example: "Постоянный", description: "registrationAddress"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    registrationAddress: string;
+
+    
+    @ApiProperty({example: "Постоянный", description: "realAddress"})
+    @Column({type: DataType.TEXT, allowNull: true})
+    realAddress: string;
+    ///////
+
 
     @BelongsToMany(() => Role, () => UserRoles)
     roles: Role[];

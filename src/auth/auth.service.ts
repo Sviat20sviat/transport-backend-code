@@ -40,17 +40,36 @@ export class AuthService {
     }
 
     private async validateUser(userDto: createUserDto) {
-        const user = await this.userService.getUserByEmail(userDto.email);
-        if(!user) {
+        const userByEmail = await this.userService.getUserByEmail(userDto.email);
+        const userByNick = await this.userService.getUserByNickname(userDto.email);
+        const userByPhone = await this.userService.getUserByPhone(userDto.email);
+        if(!userByEmail && userByNick && userByPhone) {
             throw new UnauthorizedException({ message: "UNCORRECT CREDENTIALS" });
         }
-        console.log(' private async validateUse! user',user);
-        const passwordEquals = await bcrypt.compare(userDto.password, user.password);
-        if (user && passwordEquals) {
-            return user;
-        } else {
-            throw new UnauthorizedException({ message: "UNCORRECT CREDENTIALS" });
-        };
+        if(userByEmail) {
+            const passwordEquals = await bcrypt.compare(userDto.password, userByEmail.password);
+            if (userByEmail && passwordEquals) {
+                return userByEmail;
+            } else {
+                throw new UnauthorizedException({ message: "UNCORRECT CREDENTIALS" });
+            };
+        }
+        if(userByNick) {
+            const passwordEquals = await bcrypt.compare(userDto.password, userByNick.password);
+            if (userByNick && passwordEquals) {
+                return userByNick;
+            } else {
+                throw new UnauthorizedException({ message: "UNCORRECT CREDENTIALS" });
+            };
+        }
+        if(userByPhone) {
+            const passwordEquals = await bcrypt.compare(userDto.password, userByPhone.password);
+            if (userByPhone && passwordEquals) {
+                return userByPhone;
+            } else {
+                throw new UnauthorizedException({ message: "UNCORRECT CREDENTIALS" });
+            };
+        }
     }
 
     

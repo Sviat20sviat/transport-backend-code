@@ -12,5 +12,8 @@ export class FilterDocumentDto {
   
     @ApiPropertyOptional({ example: false, description: 'Системная ли запись' })
     isSystem?: boolean;
+
+    @ApiPropertyOptional({ example: {fromTime: 2313, toTime: 234234}, description: 'период создания' })
+    createdAt?: {fromTime: number, toTime: number};
   }
   

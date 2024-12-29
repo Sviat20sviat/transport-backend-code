@@ -12,6 +12,7 @@ import { DocumentService } from 'src/documents/documents.service';
 import { CreateDocumentDto } from 'src/documents/dto/CreateDocument.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class PostsService {
@@ -28,24 +29,24 @@ export class PostsService {
     }
 
     async createPost(dto: createPostDto, image): Promise<Post> {
-        console.log('createPost!',dto);
+        console.log('createPost!', dto);
         let postStatus: number = 0;
         const fileName = await this.fileService.createFile(image);
         const postUser: User = await this.userService.getUserById(JSON.stringify(dto.userId));
-        if((postUser?.roles.some(role => role.value == 'Admin') || postUser?.roles.some(role => role.value == 'Operator') && dto?.summ)) {
+        if ((postUser?.roles.some(role => role.value == 'Admin') || postUser?.roles.some(role => role.value == 'Operator') && dto?.summ)) {
             postStatus = 1;
         };
-        const post = await this.postRepository.create({...dto, image: fileName || "", status: postStatus});
-        if(post) {
-            
+        const post = await this.postRepository.create({ ...dto, image: fileName || "", status: postStatus });
+        if (post) {
 
-            if(post?.status > 0) {
+
+            if (post?.status > 0) {
                 await this.createDocumentOnPostCreating(post);
             };
-    
+
             const postUpdated = await this.getOne(post.id.toString());
             this.gateway.emit(EventNameEnum.OnPostCreate, postUpdated);
-            if(!postUpdated) {
+            if (!postUpdated) {
                 throw new HttpException('Error When Post Creating', HttpStatus.NOT_FOUND);
             }
             return postUpdated;
@@ -54,35 +55,38 @@ export class PostsService {
     }
 
     async getAllPosts() {
-        const posts = await this.postRepository.findAll({include: {all: true}, order: [['updatedAt', 'DESC']],});
+        const posts = await this.postRepository.findAll({ include: { all: true }, order: [['updatedAt', 'DESC']], });
         return posts;
     }
 
     async getAllCheckedPosts() {
-        const posts = await this.postRepository.findAll({where: {status: 1},include: {all: true}});
+        const posts = await this.postRepository.findAll({ where: { status: 1 }, include: { all: true }, order: [['updatedAt', 'DESC']] });
         return posts;
     }
 
     async getFilteredPosts(filtedDto: FilterPostDto) {
         const where: any = {};
 
-        if(filtedDto?.status || filtedDto?.status == 0) {
+        if (filtedDto?.status || filtedDto?.status == 0) {
             where.status = filtedDto.status;
         };
-        if(filtedDto?.userId) {
+        if (filtedDto?.userId) {
             where.userId = filtedDto.userId;
         };
-        if(filtedDto?.driverId) {
+        if (filtedDto?.customerId) {
+            where.customerId = filtedDto.customerId;
+        };
+        if (filtedDto?.driverId) {
             where.driverId = filtedDto.driverId;
         };
-        const posts = await this.postRepository.findAll({where,include: {all: true}});
+        const posts = await this.postRepository.findAll({ where, include: { all: true }, order: [['updatedAt', 'DESC']] });
         return posts;
     }
 
     async deletePost(dto: deletePostDto) {
-        const post = await this.postRepository.findOne({where: {id: dto.id}, include: {all: true}});
+        const post = await this.postRepository.findOne({ where: { id: dto.id }, include: { all: true } });
         // this.postRepository
-        if(post) {
+        if (post) {
             await post.destroy();
             this.gateway.emit(EventNameEnum.OnPostDelete, post);
             return {
@@ -93,9 +97,9 @@ export class PostsService {
     }
 
     async setPostStatus(dto: setPostStatusDto) {
-        const post = await this.postRepository.findOne({where: {id: dto.id}, include: {all: true}});
+        const post = await this.postRepository.findOne({ where: { id: dto.id }, include: { all: true } });
         // this.postRepository
-        if(post) {
+        if (post) {
             post.set('status', dto.status)
             await post.save();
             this.gateway.emit(EventNameEnum.OnPostUpdate, post);
@@ -105,73 +109,73 @@ export class PostsService {
     }
 
     async getOne(id: string) {
-        const post = await this.postRepository.findOne({where: {id}, include: {all: true}});
-        if(post) {
+        const post = await this.postRepository.findOne({ where: { id }, include: { all: true } });
+        if (post) {
             return post;
         };
         throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
 
     async updatePost(dto: UpdatePostDto) {
-        const post = await this.postRepository.findOne({where: {id: dto.id}, include: {all: true}});
+        const post = await this.postRepository.findOne({ where: { id: dto.id }, include: { all: true } });
 
         let isCreateDocumentAfterUpdating = false;
-        if(!post) {
+        if (!post) {
             throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
         };
 
-        if(dto.addressFrom) {
+        if (dto.addressFrom) {
             post.set('addressFrom', dto.addressFrom);
         };
-        if(dto.addressTo) {
+        if (dto.addressTo) {
             post.set('addressTo', dto.addressTo);
         };
-        if(dto.commission) {
+        if (dto.commission) {
             post.set('commission', dto.commission);
         };
-        if(dto.content) {
+        if (dto.content) {
             post.set('content', dto.content);
         };
-        if(dto.driverId) {
+        if (dto.driverId) {
             post.set('driverId', dto.driverId);
         };
-        if(dto.paid) {
+        if (dto.paid) {
             post.set('paid', dto.paid);
         };
-        if(dto.postNaming) {
+        if (dto.postNaming) {
             post.set('postNaming', dto.postNaming);
         };
 
-        if(dto.price) {
+        if (dto.price) {
             post.set('price', dto.price);
         };
-        if(dto.status) {
-            if(post?.status == 0 && dto?.status !== 0 && dto?.summ >= 0) {
+        if (dto.status) {
+            if (post?.status == 0 && dto?.status !== 0 && dto?.summ >= 0) {
                 isCreateDocumentAfterUpdating = true;
             };
             post.set('status', dto.status);
         };
 
-        if(dto.summ) {
+        if (dto.summ) {
             post.set('summ', dto.summ);
         };
-        if(dto.title) {
+        if (dto.title) {
             post.set('title', dto.title);
         };
-        if(dto.warehouse) {
+        if (dto.warehouse) {
             post.set('warehouse', dto.warehouse);
         };
         await post.save();
         const updatedPost = await this.createDocumentOnPostCreating(post);
-        if(!updatedPost) {
+        if (!updatedPost) {
             throw new HttpException('Error When Post Updating', HttpStatus.NOT_FOUND);
         }
         this.gateway.emit(EventNameEnum.OnPostUpdate, updatedPost);
         return updatedPost;
     }
 
-    async createDocumentOnPostCreating (post: Post) {
-        if(!post) {
+    async createDocumentOnPostCreating(post: Post) {
+        if (!post) {
             throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
         };
 
@@ -189,5 +193,32 @@ export class PostsService {
 
         const document = await this.documentService.create(createData);
         return document;
+    }
+
+    async searchPosts(value: string): Promise<Post[]> {
+        if (!value) {
+            return [];
+        }
+    
+        const whereConditions = [
+            !Number.isNaN(Number(value)) ? { id: { [Op.eq]: Number(value) } } : null, // Только если это число
+            { title: { [Op.iLike]: `%${value}%` } },
+            { content: { [Op.iLike]: `%${value}%` } },
+            { addressFrom: { [Op.iLike]: `%${value}%` } },
+            { addressTo: { [Op.iLike]: `%${value}%` } },
+            { postNaming: { [Op.iLike]: `%${value}%` } },
+            { trackCode: { [Op.iLike]: `%${value}%` } },
+            { orderNumber: { [Op.iLike]: `%${value}%` } },
+        ].filter(Boolean); // Удаляем null и undefined
+    
+        const posts = await this.postRepository.findAll({
+            where: {
+                [Op.or]: whereConditions,
+            },
+            include: { all: true },
+            order: [['updatedAt', 'DESC']],
+        });
+    
+        return posts;
     }
 }

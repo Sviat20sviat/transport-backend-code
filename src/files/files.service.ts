@@ -2,9 +2,16 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as uuid from 'uuid';
+import { FileModel } from './file.model';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class FilesService {
+
+    constructor(
+        @InjectModel(FileModel)
+        private fileModel,
+      ) {}
 
     async createFile(file): Promise<string> {
         if(!file) {
@@ -22,4 +29,8 @@ export class FilesService {
             throw new HttpException("Error during write file", HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
+
+    async saveImageUrl(url: string): Promise<any> {
+        return this.fileModel.create({ url });
+      }
 }

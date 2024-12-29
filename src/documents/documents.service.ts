@@ -6,6 +6,7 @@ import { FilterDocumentDto } from './dto/FilterDocument.dto';
 import { UpdateDocumentDto } from './dto/UpdateDocument.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class DocumentService {
@@ -18,38 +19,38 @@ export class DocumentService {
     // Создание документа
     async create(createDocumentDto: CreateDocumentDto): Promise<Document> {
         let user: User;
-        if(createDocumentDto.clientId && (createDocumentDto.docType == 1 || createDocumentDto.docType == 2)) {
+        if (createDocumentDto.clientId && (createDocumentDto.docType == 1 || createDocumentDto.docType == 2)) {
             user = await this.userService.getUserById(JSON.stringify(createDocumentDto.clientId));
 
-            if(user) {
+            if (user) {
                 createDocumentDto.userBalanseBefore = user?.balance || 0;
-                if(createDocumentDto.docType == 1) {
+                if (createDocumentDto.docType == 1) {
                     createDocumentDto.userBalanseAfter = (+user?.balance || 0) - (+createDocumentDto.sum);
                 }
 
-                if(createDocumentDto.docType == 2) {
+                if (createDocumentDto.docType == 2) {
                     createDocumentDto.userBalanseAfter = (+user?.balance || 0) + (+createDocumentDto.sum);
                 }
             }
         }
         const document = await this.documentModel.create(createDocumentDto);
-        if(document?.docType == 1) {
+        if (document?.docType == 1) {
             const currentUserBalance = +user?.balance || 0;
             let userBalanceAfterOperation = currentUserBalance;
 
             userBalanceAfterOperation = userBalanceAfterOperation - (createDocumentDto.sum);
 
 
-            this.userService.setUserBalance({userId: JSON.stringify(document.clientId), balance: userBalanceAfterOperation })
+            this.userService.setUserBalance({ userId: JSON.stringify(document.clientId), balance: userBalanceAfterOperation })
         }
-        if(document?.docType == 2) {
-            console.log(document)   
+        if (document?.docType == 2) {
+            console.log(document)
             const currentUserBalance = user?.balance || 0;
             let userBalanceAfterOperation = currentUserBalance;
 
             userBalanceAfterOperation = +userBalanceAfterOperation + (+createDocumentDto.sum);
 
-            this.userService.setUserBalance({userId: JSON.stringify(document.clientId), balance: userBalanceAfterOperation })
+            this.userService.setUserBalance({ userId: JSON.stringify(document.clientId), balance: userBalanceAfterOperation })
         }
 
         return document;
@@ -65,12 +66,22 @@ export class DocumentService {
         if (filterDto.docType) where.docType = filterDto.docType;
         if (filterDto.isSystem !== undefined) where.isSystem = filterDto.isSystem;
 
-        return await this.documentModel.findAll({ where, include: {all: true}});
+        // Add createdAt filter if fromTime and toTime are provided
+        if (filterDto.createdAt && filterDto.createdAt.fromTime && filterDto.createdAt.toTime) {
+            where.createdAt = {
+                [Op.between]: [
+                    new Date(filterDto.createdAt.fromTime * 1000), // Convert to milliseconds
+                    new Date(filterDto.createdAt.toTime * 1000),   // Convert to milliseconds
+                ],
+            };
+        }
+
+        return await this.documentModel.findAll({ where, include: { all: true }, });
     }
 
     // Получение одного документа по ID
     async findOne(id: number): Promise<Document> {
-        return await this.documentModel.findOne({ where: {id}, include: {all: true}});
+        return await this.documentModel.findOne({ where: { id }, include: { all: true } });
     }
 
     // Обновление документа

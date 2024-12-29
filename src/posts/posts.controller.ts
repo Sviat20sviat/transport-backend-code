@@ -81,10 +81,19 @@ export class PostsController {
 
     @ApiOperation({summary: "Get Post by Filter"})
     @ApiResponse({status: 200, type: Object})
-    // @ApiBody({type: string})
+    @ApiBody({type: FilterPostDto})
     // @Roles('Admin', 'Driver')
     @Post('/getFilteredPosts')
     getFiltered(@Body() dto: FilterPostDto) {
         return this.postsService.getFilteredPosts(dto);
+    }
+
+    @ApiOperation({summary: "Search Posts"})
+    @ApiResponse({status: 200, type: Object})
+    // @ApiBody({type: {value: string}})
+    // @Roles('Admin', 'Driver')
+    @Post('/search')
+    search(@Body() dto: {value: string}) {
+        return this.postsService.searchPosts(dto.value);
     }
 }

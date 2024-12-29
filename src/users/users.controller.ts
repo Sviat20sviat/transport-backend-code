@@ -68,6 +68,15 @@ export class UsersController {
         return this.usersService.banUser(dto);
     }
 
+    @ApiOperation({summary: "unBAN User"})
+    @ApiResponse({status: 200})
+    @Roles('Admin')
+    @UseGuards(RolesGuard)
+    @Post('/unban')
+    unban(@Body() dto: {userId: string}) {
+        return this.usersService.unbanUser(dto.userId);
+    }
+
     @ApiOperation({summary: "Delete User"})
     @ApiResponse({status: 200})
     @Roles('Admin')
@@ -79,8 +88,6 @@ export class UsersController {
 
     @ApiOperation({summary: "Update User"})
     @ApiResponse({status: 200})
-    @Roles('Admin')
-    @UseGuards(RolesGuard)
     @Post('/update')
     UpdateUser(@Body() dto: updateUserDto) {
         return this.usersService.updateUser(dto);
