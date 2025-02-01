@@ -16,6 +16,7 @@ import { GatewayModule } from "./gateway/gateway.module";
 import { PostProductsModule } from './post-products/post-products.module';
 import { AddressesModule } from './addresses/addresses.module';
 import { DocumentsModule } from './documents/documents.module';
+import { Address } from "./addresses/addresses.model";
 
 
 @Module({
@@ -32,7 +33,7 @@ import { DocumentsModule } from './documents/documents.module';
         username: process.env.POSTGRESS_USER,
         password: process.env.POSTGRESS_PASSWORD,
         database: process.env.POSTGRESS_DB,
-        models: [User, Role, UserRoles, Post],
+        models: [User, Role, UserRoles, Address, Post],
         autoLoadModels: true
       }),
       UsersModule,

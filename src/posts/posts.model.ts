@@ -4,6 +4,7 @@ import { Role } from "src/roles/roles.model";
 import { UserRoles } from "src/roles/user-roles.model";
 import { User } from "src/users/users.model";
 import { Document } from "src/documents/documents.model";
+import { Address } from "src/addresses/addresses.model";
 
 interface PostCreationAttrs {
     title: string;
@@ -27,6 +28,7 @@ export class Post extends Model<Post, PostCreationAttrs> {
     @Column({ type: DataType.TEXT, allowNull: false })
     content: string;
 
+    //Адрес Курьерской Доставки
     @ApiProperty({ example: 'Одесса, Филатова 18', description: "Address From" })
     @Column({ type: DataType.TEXT, allowNull: false })
     addressFrom: string;
@@ -34,6 +36,23 @@ export class Post extends Model<Post, PostCreationAttrs> {
     @ApiProperty({ example: 'Москва, проспект Ленина 24', description: "Address To" })
     @Column({ type: DataType.TEXT, allowNull: false })
     addressTo: string;
+    //
+
+    //Адрес  Доставки До Пвз
+    @ApiProperty({ example: 1, description: "Address From ID !" })
+    @ForeignKey(() => Address)
+    @Column({ type: DataType.INTEGER, allowNull: false })
+    addressFromId: number;
+    @BelongsTo(() => Address, 'addressFromId')
+    addressFromData: Address;
+
+    @ApiProperty({ example: 1, description: "Address To ID" })
+    @ForeignKey(() => Address)
+    @Column({ type: DataType.INTEGER, allowNull: false })
+    addressToId: number;
+    @BelongsTo(() => Address, 'addressToId')
+    addressToData: Address;
+    //
 
     @ApiProperty({ example: '1', description: "Status" })
     @Column({ type: DataType.INTEGER, allowNull: false })
@@ -75,9 +94,9 @@ export class Post extends Model<Post, PostCreationAttrs> {
     @Column({ type: DataType.TIME })
     deliveryDate: number;
 
-    @ApiProperty({ example: 'Доставка до ПВЗ', description: "Delivery Type" })
-    @Column({ type: DataType.TEXT, allowNull: true })
-    deliveryType: string;
+    @ApiProperty({ example: 1, description: "Delivery Type" })
+    @Column({ type: DataType.INTEGER, allowNull: true })
+    deliveryType: number;
 
     @ApiProperty({ example: 'asd323wt43f34tt3er', description: "Track Code" })
     @Column({ type: DataType.TEXT, allowNull: true })
@@ -163,33 +182,6 @@ export class Post extends Model<Post, PostCreationAttrs> {
     })
     imageUrl: string | null;
 
-
-
-
-    // @Column({
-    //     type: DataType.JSONB, // Поле для хранения массива объектов
-    //     allowNull: true,
-    // })
-    // products: { 
-    //     id: number; 
-    //     name: string;
-    //     desc: string;
-    //     addressFrom: string;
-    //     addressTo: string;
-    //     warehouse: string;
-    //     deliveryType: string;
-    //     productNum: string;
-    //     productCode: string;
-    //     productComment: string;
-    //     productCharacter: string;
-    //     productCharacterComment: string;
-    //     productDimensions: string;
-    //     allProductDimensions: string;
-    //     isProductFragile: string;
-    //     weight: string;
-    // }[]; // Массив объектов
-
-
     @ForeignKey(() => User)
     @Column({ type: DataType.INTEGER })
     driverId: number;
@@ -210,6 +202,15 @@ export class Post extends Model<Post, PostCreationAttrs> {
     customer: User;
 
 
-    // @HasMany(() => require('src/documents/documents.model').Document, 'postBasisId')
-    // documents?: Document[]
+    @ApiProperty({ example: 1, description: "height" })
+    @Column({ type: DataType.INTEGER })
+    height: number;
+
+    @ApiProperty({ example: 1, description: "width" })
+    @Column({ type: DataType.INTEGER })
+    width: number;
+
+    @ApiProperty({ example: 1, description: "depth" })
+    @Column({ type: DataType.INTEGER })
+    depth: number;
 }
