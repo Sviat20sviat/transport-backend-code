@@ -16,6 +16,12 @@ export class CreateAddressDto {
   @ApiProperty({ example: 'строение 2', description: 'Строение' })
   readonly build: string;
 
+  @ApiProperty({ example: 1, description: 'Расположение' })
+  readonly location?: number;
+
+  @ApiProperty({ example: 1, description: 'addressStatusId' })
+  readonly addressStatusId?: number;
+
   @ApiProperty({ 
     example: { type: 'Point', coordinates: [37.6173, 55.7558] },
     description: 'Координаты',

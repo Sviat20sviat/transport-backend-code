@@ -49,6 +49,14 @@ export class Document extends Model<Document> {
     })
     docType: number;
 
+    @ApiProperty({ example: 1, description: 'Cтатус документа' })
+    @Column({
+        type: DataType.INTEGER,
+        defaultValue: 1
+    })
+    //1 = active; 2 = canceled;
+    status: number;
+
     @ApiProperty({ example: 2200, description: 'Сумма' })
     @Column({
         type: DataType.INTEGER,
@@ -78,6 +86,14 @@ export class Document extends Model<Document> {
         allowNull: true,
     })
     userBalanseAfter: number;
+
+    @ApiProperty({ example: 1, description: 'Канал Продаж' })
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true,
+        defaultValue: 1,
+    })
+    salesChannel: number; // 1 - наличные 2 - карта
 
 
     @ApiProperty({ example: 31233, description: 'ID клиента' })
@@ -109,7 +125,10 @@ export class Document extends Model<Document> {
         allowNull: true,
     })
     postBasisId: number;
-    @BelongsTo(() => Post, 'postBasisId')
+    @BelongsTo(() => Post, { 
+        foreignKey: 'postBasisId',
+        targetKey: 'documentId'
+    })
     postBasis: Post;
 
 

@@ -36,6 +36,12 @@ export class CreateDocumentDto {
 
   @ApiProperty({ example: 1, description: 'Баланс ПОльзователя ДО операции' })
   userBalanseAfter?: number;
+
+  @ApiProperty({ example: 1, description: 'status' })
+  status?: number;
+
+  @ApiProperty({ example: 1, description: 'salesChannel' })
+  salesChannel?: number;
 }
 
 

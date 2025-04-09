@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -11,17 +11,23 @@ import { Document } from 'src/documents/documents.model';
 import { UsersModule } from 'src/users/users.module';
 import { Address } from 'src/addresses/addresses.model';
 import { AddressesModule } from 'src/addresses/addresses.module';
+import { Warehouse } from 'src/warehouses/warehouses.model';
+import { WarehousesModule } from 'src/warehouses/warehouses.module';
 
 @Module({
   providers: [PostsService],
   controllers: [PostsController],
   imports: [
-    SequelizeModule.forFeature([User, Document, Address, Post ]),
+    SequelizeModule.forFeature([User, Document, Address, Warehouse, Post]),
     FilesModule,
     GatewayModule,
-    DocumentsModule,
+    forwardRef(() => DocumentsModule),
     UsersModule,
+    WarehousesModule,
     AddressesModule
+  ],
+  exports: [
+    PostsService,
   ]
 })
 export class PostsModule {}

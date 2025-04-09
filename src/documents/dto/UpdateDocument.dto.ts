@@ -11,6 +11,9 @@ export class UpdateDocumentDto {
   
     @ApiPropertyOptional({ example: 1, description: 'Тип документа' })
     docType?: number;
+
+    @ApiPropertyOptional({ example: 1, description: 'Status документа' })
+    status?: number;
   
     @ApiPropertyOptional({ example: 2200, description: 'Сумма' })
     sum?: number;

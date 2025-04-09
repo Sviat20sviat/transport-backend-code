@@ -13,13 +13,15 @@ import { SetUserBalanceDto } from './dto/setUserBalance.dto';
 import { SetUserFavoriteAddressDto } from './dto/set-user-favorite-address.dto';
 import { Op } from 'sequelize';
 import { Role } from 'src/roles/roles.model';
+import { EventNameEnum, TransportGateway } from 'src/gateway/gateway';
 
 @Injectable()
 export class UsersService {
 
     constructor(
         @InjectModel(User) private userRepository: typeof User,
-        private roleService: RolesService
+        private roleService: RolesService,
+        private gateway: TransportGateway,
     ) { }
 
 
@@ -95,7 +97,7 @@ export class UsersService {
         return user;
     }
 
-    async getUserById(id: string) {
+    async getUserById(id: number) {
         const user = await this.userRepository.findOne({ where: { id }, include: { all: true } });
         return user;
     }
@@ -118,6 +120,7 @@ export class UsersService {
             user.banned = true;
             user.banReason = dto.banReason;
             await user.save();
+            this.gateway.emit(EventNameEnum.OnUserBanned, user);
             return user;
         };
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);

@@ -16,7 +16,7 @@ export class User extends Model<User, UserCreationAttrs> {
     id: number;
 
     @ApiProperty({example: '1', description: "Chat ID"})
-    @Column({type: DataType.INTEGER, unique: false,})
+    @Column({type: DataType.BIGINT, allowNull: true})
     chatId: number;
 
     @ApiProperty({example: 'mail@mail.com', description: "Email"})

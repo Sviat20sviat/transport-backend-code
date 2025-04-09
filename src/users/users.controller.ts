@@ -46,7 +46,7 @@ export class UsersController {
     @ApiResponse({status: 200, type: User})
     @UseGuards(JwtAuthGuard)
     @Post('/getUserById')
-    getUserById(@Body() data: {userId: string}) {
+    getUserById(@Body() data: {userId: number}) {
         return this.usersService.getUserById(data.userId);
     }
 

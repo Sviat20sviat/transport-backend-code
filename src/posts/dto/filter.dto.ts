@@ -14,5 +14,13 @@ export class FilterPostDto {
     @ApiProperty({example: 123, description: "Status", required: false})
     readonly status?: number;
 
+    @ApiProperty({example: 123, description: "cargoStatus", required: false})
+    readonly cargoStatus?: number;
+
+    @ApiProperty({example: 123, description: "warehouseIs", required: false})
+    readonly warehouseId?: number;
+
+    @ApiProperty({example: true, description: "onlyForWarehouse", required: false})
+    readonly onlyForWarehouse?: boolean;
 
 }

@@ -58,6 +58,15 @@ export class Address extends Model<Address, AddressCreationAttrs> {
     })
     build: string;
 
+    @ApiProperty({ example: 1, description: 'В здании' })
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true,
+        comment: 'В Здании /обособлени',
+        defaultValue: 1
+    })
+    location: number;
+
     @ApiProperty({
         example: { type: 'Point', coordinates: [37.6173, 55.7558] },
         description: 'Координаты',
@@ -84,6 +93,15 @@ export class Address extends Model<Address, AddressCreationAttrs> {
         comment: 'Статус адреса',
     })
     addressStatus: string;
+
+    @ApiProperty({ example: 1, description: 'Статус адреса' })
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: true,
+        defaultValue: 1,
+        comment: 'Статус адреса',
+    })
+    addressStatusId: number;
 
     @ApiProperty({ example: 'Нужна доставка в выходные', description: 'Комментарий' })
     @Column({

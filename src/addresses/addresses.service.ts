@@ -5,6 +5,7 @@ import { CreateAddressDto } from './dto/create-address.dto';
 import { Address } from './addresses.model';
 import { EditAddressDto } from './dto/edit-address.dto';
 import { GetFilteredDto } from './dto/get-filteder.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class AddressService {
@@ -56,23 +57,70 @@ export class AddressService {
 
   async getFiltered(getFilteredDto: GetFilteredDto): Promise<Address[]> {
     const where: any = {};
+  
+    if (getFilteredDto.organization) {
+      where.organization = { [Op.iLike]: `%${getFilteredDto.organization}%` };
+    }
+    if (getFilteredDto.district) {
+      where.district = { [Op.iLike]: `%${getFilteredDto.district}%` };
+    }
+    if (getFilteredDto.name) {
+      where.name = { [Op.iLike]: `%${getFilteredDto.name}%` };
+    }
+    if (getFilteredDto.address) {
+      where.address = { [Op.iLike]: `%${getFilteredDto.address}%` };
+    }
+    if (getFilteredDto.phone) {
+      where.phone = { [Op.iLike]: `%${getFilteredDto.phone}%` };
+    }
+    if (getFilteredDto.location) {
+      where.location = { [Op.iLike]: `%${getFilteredDto.location}%` };
+    }
+  
+    // Фильтрация по статусу адреса
+    if (getFilteredDto.addressStatusId) {
+      where.addressStatusId = getFilteredDto.addressStatusId;
+    }
+  
+    // Фильтрация по координатам (предполагается, что location хранится как строка)
+    if (getFilteredDto.location) {
+      where.location = getFilteredDto.location;
+    }
 
-    if(getFilteredDto.addressStatus) {
-        where.addressStatus = getFilteredDto.addressStatus;
-    };
-    if(getFilteredDto.addressType) {
-        where.addressType = getFilteredDto.addressType;
-    };
-    if(getFilteredDto.name) {
-        where.name = getFilteredDto.name;
-    };
-    if(getFilteredDto.organization) {
-        where.organization = getFilteredDto.organization;
-    };
-    const addresses = await this.addressRepository.findAll({where, include: {all: true}, order: [['updatedAt', 'DESC']],});
-    if (!addresses) {
-        throw new NotFoundException(`NO ANY ADDRESSES not found`);
+    if (getFilteredDto.addressType) {
+      where.addressType = getFilteredDto.addressType;
+    }
+  
+    // Фильтрация по дате создания
+    if (getFilteredDto.createdAt) {
+      const { fromTime, toTime } = getFilteredDto.createdAt;
+      if (fromTime && toTime) {
+        where.createdAt = {
+          [Op.between]: [new Date(fromTime), new Date(toTime)],
+        };
+      } else if (fromTime) {
+        where.createdAt = {
+          [Op.gte]: new Date(fromTime),
+        };
+      } else if (toTime) {
+        where.createdAt = {
+          [Op.lte]: new Date(toTime),
+        };
       }
-      return addresses;
+    }
+  
+    // Выполнение запроса к базе данных
+    const addresses = await this.addressRepository.findAll({
+      where,
+      include: { all: true },
+      order: [['updatedAt', 'DESC']],
+    });
+  
+    // Проверка на отсутствие результатов
+    if (!addresses) {
+      throw new NotFoundException(`No addresses found matching the criteria`);
+    }
+  
+    return addresses;
   }
 }

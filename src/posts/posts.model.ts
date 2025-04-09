@@ -5,6 +5,7 @@ import { UserRoles } from "src/roles/user-roles.model";
 import { User } from "src/users/users.model";
 import { Document } from "src/documents/documents.model";
 import { Address } from "src/addresses/addresses.model";
+import { Warehouse } from "src/warehouses/warehouses.model";
 
 interface PostCreationAttrs {
     title: string;
@@ -41,14 +42,14 @@ export class Post extends Model<Post, PostCreationAttrs> {
     //Адрес  Доставки До Пвз
     @ApiProperty({ example: 1, description: "Address From ID !" })
     @ForeignKey(() => Address)
-    @Column({ type: DataType.INTEGER, allowNull: false })
+    @Column({ type: DataType.INTEGER, allowNull: true })
     addressFromId: number;
     @BelongsTo(() => Address, 'addressFromId')
     addressFromData: Address;
 
     @ApiProperty({ example: 1, description: "Address To ID" })
     @ForeignKey(() => Address)
-    @Column({ type: DataType.INTEGER, allowNull: false })
+    @Column({ type: DataType.INTEGER, allowNull: true })
     addressToId: number;
     @BelongsTo(() => Address, 'addressToId')
     addressToData: Address;
@@ -82,9 +83,9 @@ export class Post extends Model<Post, PostCreationAttrs> {
     @Column({ type: DataType.TEXT, allowNull: true })
     postNaming: string;
 
-    @ApiProperty({ example: 'Склад Озон', description: "На склад" })
-    @Column({ type: DataType.TEXT, allowNull: true })
-    warehouse: string;
+    // @ApiProperty({ example: 'Склад Озон', description: "На склад" })
+    // @Column({ type: DataType.TEXT, allowNull: true })
+    // warehouse: string;
 
     @ApiProperty({ example: 1, description: "cargoStatus" })
     @Column({ type: DataType.INTEGER })
@@ -171,6 +172,16 @@ export class Post extends Model<Post, PostCreationAttrs> {
     @Column({ type: DataType.BOOLEAN, allowNull: true })
     additionalFriagle: boolean;
 
+    @ApiProperty({ example: true, description: 'paidToDriver' })
+    @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
+    paidToDriver: boolean;
+
+    @ApiProperty({ example: 43, description: "documentId" })
+    @Column({
+        type: DataType.INTEGER,
+    })
+    documentId: number;
+
     @ApiProperty({
         example: 'https://example.com/image.jpg',
         description: "The URL of the image (optional)",
@@ -200,6 +211,17 @@ export class Post extends Model<Post, PostCreationAttrs> {
     customerId: number;
     @BelongsTo(() => User, 'customerId')
     customer: User;
+
+
+    @ForeignKey(() => Warehouse)
+    @Column({
+      type: DataType.INTEGER,
+      allowNull: true,
+    })
+    warehouseId: number;
+  
+    @BelongsTo(() => Warehouse)
+    warehouse: Warehouse;
 
 
     @ApiProperty({ example: 1, description: "height" })

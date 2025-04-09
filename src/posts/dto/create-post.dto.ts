@@ -126,5 +126,5 @@ export class createPostDto {
     @ApiProperty({example: 123, description: "Commission"})
     readonly commission?: number;
     @ApiProperty({example: 123, description: "Paid"})
-    readonly paid?: number;
+    paid?: number;
 }
