@@ -13,6 +13,7 @@ import { Address } from 'src/addresses/addresses.model';
 import { AddressesModule } from 'src/addresses/addresses.module';
 import { Warehouse } from 'src/warehouses/warehouses.model';
 import { WarehousesModule } from 'src/warehouses/warehouses.module';
+import { AuditLogModule } from 'src/audit-log/audit.module';
 
 @Module({
   providers: [PostsService],
@@ -24,7 +25,8 @@ import { WarehousesModule } from 'src/warehouses/warehouses.module';
     forwardRef(() => DocumentsModule),
     UsersModule,
     WarehousesModule,
-    AddressesModule
+    AddressesModule,
+    AuditLogModule
   ],
   exports: [
     PostsService,

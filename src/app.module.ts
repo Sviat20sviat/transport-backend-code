@@ -19,11 +19,24 @@ import { DocumentsModule } from './documents/documents.module';
 import { Address } from "./addresses/addresses.model";
 import { WarehousesModule } from "./warehouses/warehouses.module";
 import { Warehouse } from "./warehouses/warehouses.model";
+import { PriceListCategoryModule } from "./priceListCategory/priceListCategory.module";
+import { PriceItemModule } from "./priceListItem/priceListItem.module";
+import { PriceListCategory } from "./priceListCategory/priceListCategory.model";
+import { PriceListItem } from "./priceListItem/priceListItem.model";
+import { JwtAuthGuard } from "./auth/jwt-auth.guard";
+import { APP_GUARD } from "@nestjs/core";
+import { AuditLogModule } from "./audit-log/audit.module";
+import { AuditLog } from "./audit-log/audit.model";
 
 
 @Module({
     controllers: [],
-    providers: [],
+    providers: [
+      {
+        provide: APP_GUARD,
+        useClass: JwtAuthGuard,
+      },
+    ],
     imports: [
       ConfigModule.forRoot({
         envFilePath:`.env`
@@ -35,7 +48,7 @@ import { Warehouse } from "./warehouses/warehouses.model";
         username: process.env.POSTGRESS_USER,
         password: process.env.POSTGRESS_PASSWORD,
         database: process.env.POSTGRESS_DB,
-        models: [User, Role, UserRoles, Address, Warehouse, Post],
+        models: [User, Role, UserRoles, Address, Warehouse, Post, PriceListCategory, PriceListItem, AuditLog],
         autoLoadModels: true
       }),
       UsersModule,
@@ -51,7 +64,10 @@ import { Warehouse } from "./warehouses/warehouses.model";
       GatewayModule,
       PostProductsModule,
       AddressesModule,
-      DocumentsModule
+      DocumentsModule,
+      PriceListCategoryModule, 
+      PriceItemModule,
+      AuditLogModule
     ],
 })
 export class AppModule {

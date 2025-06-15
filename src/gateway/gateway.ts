@@ -44,4 +44,6 @@ export enum EventNameEnum {
     OnUserDelete = 'OnUserDelete',
     OnUserBanned = 'OnUserBanned',
 
+    OnPriceListUpdate = 'OnPriceListUpdate'
+
 }

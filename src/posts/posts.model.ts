@@ -235,4 +235,13 @@ export class Post extends Model<Post, PostCreationAttrs> {
     @ApiProperty({ example: 1, description: "depth" })
     @Column({ type: DataType.INTEGER })
     depth: number;
+
+
+    @ApiProperty({ example: '2023-10-01T12:00:00Z', description: "Дата и время поступления товара на склад", required: false })
+    @Column({ type: DataType.DATE, allowNull: true })
+    arrivedAtWarehouseAt: Date;
+
+    @ApiProperty({ example: '2023-10-02T12:00:00Z', description: "Дата и время выдачи товара со склада", required: false })
+    @Column({ type: DataType.DATE, allowNull: true })
+    issuedFromWarehouseAt: Date;
 }

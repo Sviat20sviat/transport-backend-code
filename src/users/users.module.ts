@@ -8,6 +8,7 @@ import { UserRoles } from 'src/roles/user-roles.model';
 import { RolesModule } from 'src/roles/roles.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { GatewayModule } from 'src/gateway/gateway.module';
+import { AuditLogModule } from 'src/audit-log/audit.module';
 
 @Module({
   controllers: [UsersController],
@@ -17,6 +18,7 @@ import { GatewayModule } from 'src/gateway/gateway.module';
     RolesModule,
     forwardRef(() => AuthModule),
     GatewayModule,
+    AuditLogModule
   ],
   exports: [
     UsersService,

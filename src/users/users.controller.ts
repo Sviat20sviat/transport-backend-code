@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards, UsePipes } from '@nestjs/common';
 import { createUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -15,6 +15,8 @@ import { setUserChatIdDto } from './dto/setUserChatId.dto';
 import { GetFilteredUsersDto } from './dto/GetFilteredUsers.dto';
 import { SetUserBalanceDto } from './dto/setUserBalance.dto';
 import { SetUserFavoriteAddressDto } from './dto/set-user-favorite-address.dto';
+import { ChangePasswordDto } from 'src/auth/dto/changePasswordDto.dto';
+import { AuditService } from 'src/audit-log/audit.service';
 // import { ValidationPipe } from 'src/pipes/validation.pipe';
 
 @ApiTags('User')
@@ -22,7 +24,8 @@ import { SetUserFavoriteAddressDto } from './dto/set-user-favorite-address.dto';
 export class UsersController {
 
     constructor(
-        private usersService: UsersService
+        private usersService: UsersService,
+        private auditService: AuditService
     ) {}
 
     @ApiOperation({summary: "Creating User"})
@@ -36,7 +39,7 @@ export class UsersController {
     @ApiOperation({summary: "Get Users"})
     @ApiResponse({status: 200, type: [User]})
     @Roles('Admin')
-    @UseGuards(RolesGuard)
+    @UseGuards(RolesGuard, JwtAuthGuard)
     @Get()
     getAll() {
         return this.usersService.getAllUsers();
@@ -135,5 +138,26 @@ export class UsersController {
     @Post('/searchAll') 
     searchUsers(@Body() dto: {value: string}) {
         return this.usersService.searchUsers(dto?.value);
+    }
+
+
+    @ApiOperation({summary: "changePassword"})
+    @ApiResponse({status: 200, type: [User]})
+    @Roles('Admin')
+    @UseGuards(RolesGuard, JwtAuthGuard)
+    @Post('/changePassword')
+    async changePassword(@Body() dto: ChangePasswordDto, @Req() request) {
+        const before = await this.usersService.getUserById(dto.userId);
+        const item = await this.usersService.changePassword(dto);
+        this.auditService.logAction(
+            'update',
+            'User',
+            item.id,
+            before,
+            item,
+            request?.user?.id,
+            request?.user
+        );
+        return item;
     }
 }

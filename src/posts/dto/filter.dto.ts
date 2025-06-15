@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEmail, IsString, Length } from "class-validator";
 
 export class FilterPostDto {
@@ -22,5 +22,11 @@ export class FilterPostDto {
 
     @ApiProperty({example: true, description: "onlyForWarehouse", required: false})
     readonly onlyForWarehouse?: boolean;
+
+    @ApiPropertyOptional({ example: {fromTime: 2313, toTime: 234234}, description: 'Период создания' })
+    createdAt?: {fromTime: number, toTime: number};
+
+    @ApiPropertyOptional({ example: {fromTime: 2313, toTime: 234234}, description: 'Период поступления товара на склад' })
+    arrivedAtWarehouseRange?: {fromTime: number, toTime: number};
 
 }

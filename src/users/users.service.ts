@@ -14,6 +14,8 @@ import { SetUserFavoriteAddressDto } from './dto/set-user-favorite-address.dto';
 import { Op } from 'sequelize';
 import { Role } from 'src/roles/roles.model';
 import { EventNameEnum, TransportGateway } from 'src/gateway/gateway';
+import { ChangePasswordDto } from 'src/auth/dto/changePasswordDto.dto';
+import * as bcrypt from "bcryptjs"
 
 @Injectable()
 export class UsersService {
@@ -288,6 +290,16 @@ export class UsersService {
 
         return users;
     }
+
+    async changePassword(dto: ChangePasswordDto): Promise<User> {
+        const user = await this.getUserById(dto.userId);
+        const hashPass = await bcrypt.hash(dto.password, 5);
+
+        await user.set('password', hashPass);
+        await user.save();
+        return user;
+    }
+
 }
 
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 // import { Post } from './posts.model';
 import { createPostDto } from './dto/create-post.dto';
@@ -10,13 +10,15 @@ import { setPostStatusDto } from './dto/set-post-status.dto';
 import { UpdatePostDto } from './dto/update-post-dto';
 import { FilterPostDto } from './dto/filter.dto';
 import { GetPostDto } from './dto/get-post.dto';
+import { AuditService } from 'src/audit-log/audit.service';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
 
     constructor(
-        private postsService: PostsService
+        private postsService: PostsService,
+        private auditService: AuditService
     ) {}
 
     @ApiOperation({summary: "Create Post"})
@@ -24,8 +26,18 @@ export class PostsController {
     @ApiBody({type: createPostDto})
     @Post()
     @UseInterceptors(FileInterceptor('image'))
-    create(@Body() userDto: createPostDto, @UploadedFile() image) {
-        return this.postsService.createPost(userDto,image);
+    async create(@Body() userDto: createPostDto, @UploadedFile() image, @Req() request) {
+        const item = await this.postsService.createPost(userDto,image);
+        this.auditService.logAction(
+            'create',
+            'Post',
+            item.id,
+            null,
+            item,
+            request?.user?.id,
+            request?.user
+        );
+        return item;
     }
 
     @ApiOperation({summary: "Get posts"})
@@ -48,8 +60,19 @@ export class PostsController {
     @ApiBody({type: deletePostDto})
     @Roles('Admin')
     @Post('/delete')
-    delete(@Body() dto: deletePostDto) {
-        return this.postsService.deletePost(dto);
+    async delete(@Body() dto: deletePostDto, @Req() request) {
+        const item = await this.postsService.getOne(dto.id );
+        const deleted = await this.postsService.deletePost(dto);
+        this.auditService.logAction(
+            'delete',
+            'Post',
+            item.id,
+            item,
+            null,
+            request?.user?.id,
+            request?.user
+        );
+        return deleted;
     }
 
     @ApiOperation({summary: "Set Post status"})
@@ -57,8 +80,18 @@ export class PostsController {
     @ApiBody({type: setPostStatusDto})
     @Roles('Admin', 'Driver')
     @Post('/setStatus')
-    setStatus(@Body() dto: setPostStatusDto) {
-        return this.postsService.setPostStatus(dto);
+    async setStatus(@Body() dto: setPostStatusDto, @Req() request) {
+        const item = await this.postsService.setPostStatus(dto);
+        this.auditService.logAction(
+            'update',
+            'Post',
+            item.id,
+            null,
+            item,
+            request?.user?.id,
+            request?.user
+        );
+        return item;
     }
 
     @ApiOperation({summary: "Update Post"})
@@ -66,8 +99,19 @@ export class PostsController {
     @ApiBody({type: UpdatePostDto})
     @Roles('Admin', 'Driver')
     @Post('/update')
-    update(@Body() dto: UpdatePostDto) {
-        return this.postsService.updatePost(dto);
+    async update(@Body() dto: UpdatePostDto, @Req() request) {
+        const before = await this.postsService.getOne(dto.id);
+        const item = await this.postsService.updatePost(dto);
+        this.auditService.logAction(
+            'update',
+            'Post',
+            item.id,
+            before,
+            item,
+            request?.user?.id,
+            request?.user
+        );
+        return item;
     }
 
     @ApiOperation({summary: "Get Post"})

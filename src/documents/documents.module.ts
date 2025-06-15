@@ -9,6 +9,7 @@ import { DocumentService } from './documents.service';
 import { DocumentController } from './documents.controller';
 import { UsersModule } from 'src/users/users.module';
 import { PostsModule } from 'src/posts/posts.module';
+import { AuditLogModule } from 'src/audit-log/audit.module';
 
 @Module({
     providers: [DocumentService],
@@ -18,6 +19,7 @@ import { PostsModule } from 'src/posts/posts.module';
       FilesModule,
       GatewayModule,
       UsersModule,
+      AuditLogModule,
       forwardRef(() => PostsModule),
       
     ],

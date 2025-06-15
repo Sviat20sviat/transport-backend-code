@@ -4,6 +4,7 @@ import { createUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from "bcryptjs"
 import { User } from 'src/users/users.model';
+import { ChangePasswordDto } from './dto/changePasswordDto.dto';
 
 @Injectable()
 export class AuthService {

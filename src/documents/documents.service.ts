@@ -181,7 +181,8 @@ export class DocumentService {
                 }
             }
         }
-        if(updateDto?.sum !== document?.sum) {
+        if(updateDto?.sum && updateDto?.sum !== document?.sum) {
+            console.log(updateDto?.sum,  document?.sum);
             const sumDiff: number = Number(document?.sum) - Number(updateDto?.sum);
             let user: User;
             user = await this.userService.getUserById(document.clientId);
@@ -189,6 +190,9 @@ export class DocumentService {
                 return;
             };
             const userBalanseAfter = Number(document.userBalanseAfter) + sumDiff;
+            console.log(document.userBalanseAfter);
+            console.log(sumDiff);
+            console.log(userBalanseAfter);
             await document.update({ userBalanseAfter: userBalanseAfter });
             const userBalanceAfterUpdate = Number(user?.balance || 0) + sumDiff;
             this.userService.setUserBalance({ userId: document.clientId, balance: userBalanceAfterUpdate });

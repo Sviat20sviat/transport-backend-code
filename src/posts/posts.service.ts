@@ -104,6 +104,22 @@ export class PostsService {
         if(filtedDto?.onlyForWarehouse) {
             where.cargoStatus = { [Op.in]: [3, 4] };
         };
+        if (filtedDto.createdAt && filtedDto.createdAt.fromTime && filtedDto.createdAt.toTime) {
+            where.createdAt = {
+                [Op.between]: [
+                    new Date(filtedDto.createdAt.fromTime * 1000), // Convert to milliseconds
+                    new Date(filtedDto.createdAt.toTime * 1000),   // Convert to milliseconds
+                ],
+            };
+        };
+        if (filtedDto.arrivedAtWarehouseRange && filtedDto.arrivedAtWarehouseRange.fromTime && filtedDto.arrivedAtWarehouseRange.toTime) {
+            where.arrivedAtWarehouseAt = {
+                [Op.between]: [
+                    new Date(filtedDto.arrivedAtWarehouseRange.fromTime * 1000), // Convert to milliseconds
+                    new Date(filtedDto.arrivedAtWarehouseRange.toTime * 1000),   // Convert to milliseconds
+                ],
+            };
+        };
         const posts = await this.postRepository.findAll({ where, include: { all: true }, order: [['updatedAt', 'DESC']] });
         return posts;
     }
@@ -133,7 +149,7 @@ export class PostsService {
         throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
 
-    async getOne(id: string) {
+    async getOne(id: string | number) {
         const post = await this.postRepository.findOne({ where: { id }, include: { all: true } });
         if (post) {
             return post;
@@ -223,7 +239,7 @@ export class PostsService {
             }
             if(dto.status === 3 && post?.driverId) {
                 const driver: User = await this.userService.getUserById(post.driverId);
-                const driverCommision = Number(post.commission);
+                const driverCommision = Number(post.price);
                 let driverBalance = Number(driver.balance);
                 driverBalance = driverBalance + driverCommision;
                 await this.userService.setUserBalance({userId: driver.id, balance: driverBalance});
@@ -244,7 +260,7 @@ export class PostsService {
             if(post?.cargoStatus !== dto.cargoStatus && dto.cargoStatus === 4) {
                 if(post?.driverId && !post?.paidToDriver) {
                     const driver: User = await this.userService.getUserById(post.driverId);
-                    const driverCommision = Number(post.commission);
+                    const driverCommision = Number(post.price);
                     let driverBalance = Number(driver.balance);
                     driverBalance = driverBalance + driverCommision;
                     await this.userService.setUserBalance({userId: driver.id, balance: driverBalance});
@@ -252,9 +268,12 @@ export class PostsService {
 
                 post.set('status', 21);
                 post.set('paidToDriver', true);
+                post.set('arrivedAtWarehouseAt', new Date());
+                post.set('issuedFromWarehouseAt', null);
             };
             if(post?.cargoStatus !== dto.cargoStatus && dto.cargoStatus === 6) {
                 post.set('status', 3);
+                post.set('issuedFromWarehouseAt', new Date());
             }
             post.set('cargoStatus', dto.cargoStatus);
         };
@@ -326,3 +345,11 @@ export class PostsService {
         return posts;
     }
 }
+// Cargo Status
+// WaitCargo = 1,
+// OnTheWayOnOurDelivery = 2,
+// WaitConfirmation = 3,
+// WaitInWarehouse = 4,
+// ReadyForPickup = 5,
+// Issued = 6,
+// Cancelled = 7,
